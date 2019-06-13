@@ -1,0 +1,51 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+struct point
+{
+    int t;//活动的端点时间
+    bool f;//true表示活动开始false标志活动结束时间
+};
+bool cmp(point x,point y)//比较时间点的大小
+{
+    return x.t<y.t;
+}
+
+int greedy(vector<point> x)
+{
+    int max=0,cur=0,n=x.size();
+    sort(x.begin(),x.end(),cmp);//从小到大排序一下各个活动时间点,排序规则是cmp
+    for(int i=0;i<n;i++)
+    {
+        if(x[i].f)//如果是活动开始时间则加一
+            cur++;
+        else//结束时间减一
+            cur--;
+        if((i==n-1 || x[i].t<x[i+1].t) && cur>max)//此时间点有多个活动进行，而这个重叠活动最大值就是需要的最大会场数
+            max=cur;                             
+    }                                              
+    return max;                                   
+}
+
+int main()
+{
+    vector<point> x;//容器
+    int n,i;
+    point temp;
+    while(cin>>n,n)//输入n个活动,即2n个point
+    {
+        for(i=0;i<n;i++)
+        {
+            temp.f=true;
+            cin>>temp.t;
+            x.push_back(temp);//活动开始时间，标志temp.f为true,进入容器
+            temp.f=false;
+            cin>>temp.t;
+            x.push_back(temp);//活动结束时间，标志temp.f为false,进入容器
+        }
+        cout<<greedy(x)<<endl;
+        x.clear();//clear只是把那些元素全部删除掉，并不是释放内存
+    }
+    return 0;
+}
