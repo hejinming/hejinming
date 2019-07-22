@@ -1,0 +1,144 @@
+package BackTrack;                              //包装回溯
+
+import java.util.Scanner;                       //创建Scanner对象，从键盘输入数据
+public class dcr 
+{		
+	public static void main(String[] args)     //主方法
+	{
+		// TODO Auto-generated method stub
+		
+		@SuppressWarnings("resource")
+		Scanner sc = new Scanner(System.in);       //声明一个Scanner类对象
+		int n = sc.nextInt();                     //表示从键盘输入的物体的个数
+	    int m = sc.nextInt();                    //输入物品约束条件
+	    double maxValue = sc.nextDouble();       //输入物品价值
+	    
+	    double[] value = new double[n];         //定义一个value一维数组，从键盘输入价值
+	    for(int i = 0; i < n; i++) 
+	    {             //物品价值
+	    	value[i] = sc.nextDouble();
+	    }
+	    
+	    int[][] weight =  new int[m][n];        //定义一个weight二维数组，从键盘输入物品重量
+	    for(int i = 0; i < m; i++)
+	    {             //物品重量
+	    	for(int j=0;j < n;j++)
+	    	{
+	    		weight[i][j] = sc.nextInt();
+	    	}
+	    }
+	    int[] capacity = new int[m];              //定义一个capacity数组，从键盘输入约束条件
+	    for(int j = 0; j < m; j++) 
+	    {             //物品约束条件
+	    	capacity[j] = sc.nextInt();
+        }
+		
+		//System.out.print(weight[0]);
+	    //for(int i=0;i<m;i++) 
+			//System.out.println("我是"+(i+1)+"维度的路径和价值");
+	    bg b = new bg(n,m,capacity,weight,maxValue, value);   //声明一个bg类对象b，传入一些参数
+	    b.Initialization();                     //初始化当前背包重量的参数
+		b.BackTrack(0);                         //调用函数从跟节点往下搜索
+	    
+		System.out.println("该背包能够取到的最大价值为: "+b.maxValue);   //输出该背包最大值
+		System.out.print("该背包取出的方法为: ");						//输出该背包的最优方案
+		
+		for(int i=0 ; i<n ; i++)              //遍历数组，输出最优方案
+			if(b.best_way[i]==1)
+				System.out.print(i+1 + " ");
+	}
+}
+
+
+
+
+
+
+
+package BackTrack;                       //包装回溯
+
+public class bg                         //创建公共类bg
+{
+	int n;                             //物品数量
+	int m;                             //约束的个数
+	int[] capacity;                     //背包容量、约束条件
+	int[][] weight;                      //重量
+	double[] value;                    //价值
+	double maxValue=0;                  //最大价值初始化为0
+	double bagmaxv=0;	                //背包最大价值
+	double tempValue=0;                 //当前价值
+	int[] tempWeight;	                //当前重量
+	int[] way;                          //路径
+	int[] best_way;                     //最优路径
+	
+	//定义构造方法，传入参数
+	public  bg(int n,int m,int capacity[],int [][]weight,double maxValue,double []value)
+	{
+		this.n=n;                            //访问对象属性
+		this.m=m;
+		this.capacity=capacity;
+		this.weight=weight;
+		this.value=value;
+		this.bagmaxv=maxValue;
+		this.way=new int[n];
+		this.best_way=new int[n];
+		this.tempWeight = new int[m];
+	};
+	public void Initialization()          //初始化参数
+	{
+		for(int i=0; i<m ; i++)
+			tempWeight[i]=0;
+	}
+	
+	
+	public void BackTrack(int t)           //回溯
+	{                   
+	//已经搜索到根节点
+		if(t>=n)                          //如果到跟节点
+		{                                 
+			
+			if(tempValue >= maxValue)      //当前价值大于上一次最大价值
+			{           
+				maxValue = tempValue;            //把当前价值交换给最大价值
+				
+				for(int J=0;J<n;J++)             //输出路径
+				{              
+					best_way[J] = way[J];           //把最优的选择序列保存在best_selection中					
+					//System.out.print(way[J]+"  ");
+				}
+				//System.out.print(maxValue);    //输出最大价值
+				//System.out.println();
+			}
+		return;                                 //跳出函数
+		}
+		//搜索左边节点
+		int i;
+		for(i=0;i<m;i++)
+		{
+			if(tempWeight[i]+weight[i][t]<=capacity[i])  //如果当前重量加下一个重量小于等于约束条件
+				continue;                                //继续循环
+			else
+				break;                                  //退出
+		}
+		if(i==m) 
+		{
+			for(int j=0;j<m;j++)
+			{					
+				tempWeight[j] += weight[j][t];       //当前重量加上下一个重量
+			}    
+			tempValue += value[t];                  //当前价值加上下一个价值
+			way[t] = 1;                            //1表示选择该物品
+			//System.out.println("kjhj");
+			
+			BackTrack(t+1);                       //回溯
+			for(int j=0;j<m;j++)
+			{					
+				tempWeight[j] -= weight[j][t];		//不选择则减去上一个重量
+			}      
+			tempValue -= value[t];                  //不选择则减去上一个价值
+			way[t] = 0;                             //0表示不选择该物品
+		}
+
+		BackTrack(t+1);                            //不装入这个物品,直接搜索右边节点
+	}
+}
